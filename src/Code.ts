@@ -5,6 +5,8 @@ const fromHashesA1Notation = "D12:D";
 const googleSheetMimeType = "application/vnd.google-apps.spreadsheet";
 const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
 
+const filtersSheetName = "Filters";
+
 function myFunction(){
   const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
   const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
@@ -13,10 +15,37 @@ function myFunction(){
     Logger.log(x);
   });
 
-  const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensSheetsIds, 3, 3);
+  createOrOverwriteSheet(filtersSheetName);
+
+  // const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensSheetsIds, 3, 3);
   // tempResult.forEach((value, key) => {
   //   Logger.log(key + ": " + value);
   // });
+}
+
+function getSheetByNameCreateIfDoesntExist(name: string): GoogleAppsScript.Spreadsheet.Sheet{
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(name);
+  if(!sheet){
+    sheet = ss.insertSheet(name);
+  }
+
+  ss.setActiveSheet(sheet);
+  ss.moveActiveSheet(1);
+  return sheet;
+}
+
+function createOrOverwriteSheet(name: string): GoogleAppsScript.Spreadsheet.Sheet{
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(name);
+  if(sheet){
+    ss.deleteSheet(sheet);
+  }
+  sheet = ss.insertSheet(name);
+
+  ss.setActiveSheet(sheet);
+  ss.moveActiveSheet(1);
+  return sheet;
 }
 
 function fitlerUniqueTokensSheetsIds(allIds: string[]){
