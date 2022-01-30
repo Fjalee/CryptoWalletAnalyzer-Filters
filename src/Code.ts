@@ -1,5 +1,6 @@
 
 const tokenHashA1Notation = "E2";
+const tokenNameA1Notation = "B2";
 const fromHashesA1Notation = "D12:D";
 
 const googleSheetMimeType = "application/vnd.google-apps.spreadsheet";
@@ -9,18 +10,30 @@ const filtersSheetName = "Filters";
 
 function myFunction(){
   const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
-  const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
-  fitlerUniqueTokensSheetsIds(tokensSheetsIds);
-  tokensSheetsIds.forEach(x => {
-    Logger.log(x);
-  });
 
-  createOrOverwriteSheet(filtersSheetName);
+  const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
+  const tokens = fitlerUniqueTokensSheetsIds(tokensSheetsIds);
+
+  const filtersSheet = createOrOverwriteSheet(filtersSheetName);
+
+  addTokensToFiltersPage(filtersSheet, tokens);
+
 
   // const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensSheetsIds, 3, 3);
+  
+  // tokensSheetsIds.forEach(x => {
+  //   Logger.log(x);
+  // });
   // tempResult.forEach((value, key) => {
   //   Logger.log(key + ": " + value);
   // });
+}
+
+function addTokensToFiltersPage(filtersSheet: GoogleAppsScript.Spreadsheet.Sheet, tokens: {name: string, hash: string}[]){
+  filtersSheet.appendRow(["", "token name", "token hash"]);
+  tokens.forEach(t => {
+    filtersSheet.appendRow(["temp", t.name, t.hash]);
+  });
 }
 
 function getSheetByNameCreateIfDoesntExist(name: string): GoogleAppsScript.Spreadsheet.Sheet{
@@ -50,10 +63,12 @@ function createOrOverwriteSheet(name: string): GoogleAppsScript.Spreadsheet.Shee
 
 function fitlerUniqueTokensSheetsIds(allIds: string[]){
   let uniqueTokenHashes: string[] = [];
+  let uniqueTokens: {name: string, hash: string}[] = [];
 
   allIds.forEach(id => {
     const sheet = SpreadsheetApp.openById(id);
     const tokenHash: string = sheet.getRange(tokenHashA1Notation).getValue();
+    const tokenName: string = sheet.getRange(tokenNameA1Notation).getValue();
     if(uniqueTokenHashes.includes(tokenHash)){
       const indexToRemove = allIds.indexOf(id);
       if (indexToRemove > -1) {
@@ -62,8 +77,11 @@ function fitlerUniqueTokensSheetsIds(allIds: string[]){
     }
     else{
       uniqueTokenHashes.push(tokenHash);
+      uniqueTokens.push({name: tokenName, hash: tokenHash})
     }
   });
+
+  return uniqueTokens;
 }
 
 function getGoogleSheetIds(folder: GoogleAppsScript.Drive.Folder): string[]{
