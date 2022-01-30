@@ -9,15 +9,17 @@ const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
 const filtersSheetName = "Filters";
 
 function myFunction(){
-  const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
+  addMenuCryptoWalletAnalyzer();
 
-  const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
-  const tokens = fitlerUniqueTokensSheetsIds(tokensSheetsIds);
+  // const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
 
-  const filtersSheet = createOrOverwriteSheet(filtersSheetName);
+  // const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
+  // const tokens = fitlerUniqueTokensSheetsIds(tokensSheetsIds);
 
-  addTokensToFiltersPage(filtersSheet, tokens);
+  // const filtersSheet = createOrOverwriteSheet(filtersSheetName);
 
+  // addTokensToFiltersPage(filtersSheet, tokens);
+  // filtersSheet.autoResizeColumns(1, 10);
 
   // const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensSheetsIds, 3, 3);
   
@@ -27,6 +29,18 @@ function myFunction(){
   // tempResult.forEach((value, key) => {
   //   Logger.log(key + ": " + value);
   // });
+
+}
+
+function createNewFiltersSheet(){
+  const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
+
+  const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
+  const tokens = fitlerUniqueTokensSheetsIds(tokensSheetsIds);
+
+  const filtersSheet = createOrOverwriteSheet(filtersSheetName);
+
+  addTokensToFiltersPage(filtersSheet, tokens);
 
   filtersSheet.autoResizeColumns(1, 10);
 }
@@ -159,9 +173,9 @@ function addUniqueTokenCreateWalletIfDoesntExist(tokenHash: string, walletHash: 
   }
 }
 
-function testMenu(){
+function addMenuCryptoWalletAnalyzer(){
   const ui = SpreadsheetApp.getUi();
-  const menu = ui.createMenu('Test tab');
-  menu.addItem('Test items', 'temp');
+  const menu = ui.createMenu("Crypto Wallet Analyzer");
+  menu.addItem("Create new Filters sheet", "createNewFiltersSheet");
   menu.addToUi();
 }
