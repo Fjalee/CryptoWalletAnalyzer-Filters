@@ -2,16 +2,47 @@
 const tokenHashA1Notation = "E2";
 const fromHashesA1Notation = "D12:D";
 
+const googleSheetMimeType = "application/vnd.google-apps.spreadsheet";
+const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
+
 function myFunction(){
-  const idsTemp = ["10HqqvSphHj4vS_aCOPn2GYg3o-1dpKuAFpvBmllb6-o", "1AZMcjGTK5NGcd1L0fSe9z4vnhFotnzseE3AtwkW6X8Q", "1jp6oGM7F-edX42zvs6CGpCmdhuPsfWi5fGVEmjjS1zA"];
+  const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
+  const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
 
-  const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(idsTemp, 3, 3);
-  // const tempResult = getWalletTokensMap(idsTemp);
-
-
+  const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensSheetsIds, 3, 3);
   tempResult.forEach((value, key) => {
     Logger.log(key + ": " + value);
   });
+}
+
+function getGoogleSheetIds(folder: GoogleAppsScript.Drive.Folder): string[]{
+  let result: string[] = [];
+
+  const files = folder.getFiles();
+  while(files.hasNext()) {
+    const file = files.next();
+    if (file.getMimeType() === googleSheetMimeType){
+      result.push(file.getId());
+    }
+  }
+
+  return result;
+}
+
+function getFolderByPathCreateIfDoesntExist(path: string[]): GoogleAppsScript.Drive.Folder{
+  let currentFolder = DriveApp.getRootFolder();
+
+  path.forEach(folderName => {
+    const folderIter = currentFolder.getFoldersByName(folderName);
+
+    if(folderIter.hasNext()){
+      currentFolder = folderIter.next();
+    }
+    else{
+      currentFolder = currentFolder.createFolder(folderName);
+    }
+  });
+  return currentFolder;
 }
 
 function filterWalletsActiveInSpecifiedAmountUniqueTokens(
