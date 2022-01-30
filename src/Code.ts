@@ -8,10 +8,32 @@ const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
 function myFunction(){
   const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
   const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
+  fitlerUniqueTokensSheetsIds(tokensSheetsIds);
+  tokensSheetsIds.forEach(x => {
+    Logger.log(x);
+  });
 
   const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensSheetsIds, 3, 3);
-  tempResult.forEach((value, key) => {
-    Logger.log(key + ": " + value);
+  // tempResult.forEach((value, key) => {
+  //   Logger.log(key + ": " + value);
+  // });
+}
+
+function fitlerUniqueTokensSheetsIds(allIds: string[]){
+  let uniqueTokenHashes: string[] = [];
+
+  allIds.forEach(id => {
+    const sheet = SpreadsheetApp.openById(id);
+    const tokenHash: string = sheet.getRange(tokenHashA1Notation).getValue();
+    if(uniqueTokenHashes.includes(tokenHash)){
+      const indexToRemove = allIds.indexOf(id);
+      if (indexToRemove > -1) {
+        allIds.splice(indexToRemove, 1);
+      }
+    }
+    else{
+      uniqueTokenHashes.push(tokenHash);
+    }
   });
 }
 
