@@ -27,6 +27,8 @@ function myFunction(){
   // tempResult.forEach((value, key) => {
   //   Logger.log(key + ": " + value);
   // });
+
+  filtersSheet.autoResizeColumns(1, 10);
 }
 
 function addTokensToFiltersPage(filtersSheet: GoogleAppsScript.Spreadsheet.Sheet, tokens: {name: string, hash: string}[]){
