@@ -3,8 +3,6 @@ const tokenHashA1Notation = "E2";
 const tokenNameA1Notation = "B2";
 const fromHashesA1Notation = "D12:D";
 
-const thisLibraryName = "Filters";
-
 const googleSheetMimeType = "application/vnd.google-apps.spreadsheet";
 const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
 
@@ -31,7 +29,6 @@ function myFunction(){
   // tempResult.forEach((value, key) => {
   //   Logger.log(key + ": " + value);
   // });
-
 }
 
 function createNewFiltersSheet(){
@@ -178,6 +175,6 @@ function addUniqueTokenCreateWalletIfDoesntExist(tokenHash: string, walletHash: 
 function addMenuCryptoWalletAnalyzer(){
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
-  menu.addItem("Create new Filters sheet", thisLibraryName + ".createNewFiltersSheet");
+  menu.addItem("Create new Filters sheet", "createNewFiltersSheet");
   menu.addToUi();
 }
