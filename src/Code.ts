@@ -7,6 +7,7 @@ const googleSheetMimeType = "application/vnd.google-apps.spreadsheet";
 const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
 
 const filtersSheetName = "Filters";
+const placeholderNameForDeletion = "Outdated-Filters";
 
 function myFunction(){
   addMenuCryptoWalletAnalyzer();
@@ -65,15 +66,25 @@ function getSheetByNameCreateIfDoesntExist(name: string): GoogleAppsScript.Sprea
 
 function createOrOverwriteSheet(name: string): GoogleAppsScript.Spreadsheet.Sheet{
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(name);
-  if(sheet){
-    ss.deleteSheet(sheet);
+  let oldSheet = ss.getSheetByName(name);
+  if(oldSheet){
+    oldSheet.setName(placeholderNameForDeletion);
   }
-  sheet = ss.insertSheet(name);
 
+  let newSheet = ss.insertSheet(name);
+
+  if(oldSheet){
+    ss.deleteSheet(oldSheet);
+  }
+  
+  moveSheet(newSheet, 1);
+  return newSheet;
+}
+
+function moveSheet(sheet: GoogleAppsScript.Spreadsheet.Sheet, newLocation: number){
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
   ss.setActiveSheet(sheet);
   ss.moveActiveSheet(1);
-  return sheet;
 }
 
 function fitlerUniqueTokensSheetsIds(allIds: string[]){
