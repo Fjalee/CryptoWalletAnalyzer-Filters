@@ -32,7 +32,7 @@ function myFunction(){
   // });
 }
 
-function createNewFiltersSheet(){
+function refreshFiltersSheet(){
   const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
 
   const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
@@ -186,6 +186,6 @@ function addUniqueTokenCreateWalletIfDoesntExist(tokenHash: string, walletHash: 
 function addMenuCryptoWalletAnalyzer(){
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
-  menu.addItem("Create new Filters sheet", "createNewFiltersSheet");
+  menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
   menu.addToUi();
 }
