@@ -176,6 +176,6 @@ function addUniqueTokenCreateWalletIfDoesntExist(tokenHash: string, walletHash: 
 function addMenuCryptoWalletAnalyzer(){
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
-  menu.addItem("Create new Filters sheet", "createNewFiltersSheet");
+  menu.addItem("Create new Filters sheet", "Filters.createNewFiltersSheet");
   menu.addToUi();
 }
