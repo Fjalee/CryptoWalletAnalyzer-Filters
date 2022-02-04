@@ -46,9 +46,9 @@ function refreshFiltersSheet(){
 }
 
 function addTokensToFiltersPage(filtersSheet: GoogleAppsScript.Spreadsheet.Sheet, tokens: {name: string, hash: string}[]){
-  filtersSheet.appendRow(["", "token name", "token hash"]);
+  filtersSheet.appendRow(["token name", "token hash"]);
   tokens.forEach(t => {
-    filtersSheet.appendRow(["temp", t.name, t.hash]);
+    filtersSheet.appendRow([t.name, t.hash]);
   });
 }
 
