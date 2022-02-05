@@ -2,6 +2,14 @@
 const tokenHashA1Notation = "E2";
 const tokenNameA1Notation = "B2";
 const fromHashesA1Notation = "D12:D";
+const filtersPageA1Notations = {
+  tokens: {
+    checkBoxes:{
+      checkBoxesStartA1Notation: "A2"
+    },
+    tokensStartRow: 2
+  }
+}
 
 const googleSheetMimeType = "application/vnd.google-apps.spreadsheet";
 const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
@@ -11,6 +19,9 @@ const placeholderNameForDeletion = "Outdated-Filters";
 
 function initialize(){
   addMenuCryptoWalletAnalyzer();
+}
+
+function debugTemp(){
 }
 
 function temp(){
@@ -43,15 +54,29 @@ function refreshFiltersSheet(){
   const filtersSheet = createOrOverwriteSheet(filtersSheetName);
 
   addTokensToFiltersPage(filtersSheet, tokens);
+  addCheckBoxesToFiltersPage(tokens.length);
 
   filtersSheet.autoResizeColumns(1, 10);
 }
 
 function addTokensToFiltersPage(filtersSheet: GoogleAppsScript.Spreadsheet.Sheet, tokens: {name: string, hash: string}[]){
-  filtersSheet.appendRow(["Token Name", "Token Hash"]);
+  filtersSheet.appendRow(["", "Token Name", "Token Hash"]);
+
   tokens.forEach(t => {
-    filtersSheet.appendRow([t.name, t.hash]);
+    filtersSheet.appendRow(["", t.name, t.hash]);
   });
+}
+
+function addCheckBoxesToFiltersPage(amountOfTokens: number){
+  const filtersSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(filtersSheetName);
+
+  const rangeFrom = filtersPageA1Notations.tokens.checkBoxes.checkBoxesStartA1Notation;
+  const rangeTo = "A" + (filtersPageA1Notations.tokens.tokensStartRow - 1 + amountOfTokens);
+
+  Logger.log(rangeFrom + ":" + rangeTo);
+  const range = filtersSheet.getRange(rangeFrom + ":" + rangeTo);
+
+  range.insertCheckboxes("Y", "N");
 }
 
 function getSheetByNameCreateIfDoesntExist(name: string): GoogleAppsScript.Spreadsheet.Sheet{
@@ -189,6 +214,7 @@ function addMenuCryptoWalletAnalyzer(){
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
   menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
+  menu.addItem("debug", "debugTemp");
 
   const subMenuFilters = ui.createMenu("Filters");
   subMenuFilters.addItem("Wallets active in specified amount of unique tokens", "filterWalletsActiveInSpecifiedAmountUniqueTokens");
