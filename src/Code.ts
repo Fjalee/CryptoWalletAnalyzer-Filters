@@ -187,5 +187,10 @@ function addMenuCryptoWalletAnalyzer(){
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
   menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
+
+  const subMenuFilters = ui.createMenu("Filters");
+  subMenuFilters.addItem("Wallets active in specified amount of unique tokens", "filterWalletsActiveInSpecifiedAmountUniqueTokens");
+  menu.addSubMenu(subMenuFilters);
+
   menu.addToUi();
 }
