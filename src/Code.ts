@@ -41,7 +41,8 @@ function initialize(){
 }
 
 function debugTemp(){
-  menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens();
+  createNewResultSheet();
+  // menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens();
 }
 
 function temp(){
@@ -134,7 +135,7 @@ function createOrOverwriteSheet(name: string): GoogleAppsScript.Spreadsheet.Shee
 function moveSheet(sheet: GoogleAppsScript.Spreadsheet.Sheet, newLocation: number){
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   ss.setActiveSheet(sheet);
-  ss.moveActiveSheet(1);
+  ss.moveActiveSheet(newLocation);
 }
 
 function fitlerUniqueTokensSheetsIds(allIds: string[]): filterPageToken[]{
@@ -236,7 +237,8 @@ function addUniqueTokenCreateWalletIfDoesntExist(tokenHash: string, walletHash: 
 function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens(){
   const sheetsIdPool = getFilterPageTokens().filter(t => t.isChecked === CheckboxStatus.Checked).map(t => t.sheetId);
   
-  // filterWalletsActiveInSpecifiedAmountUniqueTokens(sheetsIdPool, minAmountBought, maxAmountBought);
+  filterWalletsActiveInSpecifiedAmountUniqueTokens(sheetsIdPool, 3, 2);
+
 }
 
 function getFilterPageTokens(): filterPageTokenRow[]{
@@ -255,6 +257,14 @@ function getFilterPageTokens(): filterPageTokenRow[]{
   });
 
   return result;
+}
+
+function createNewResultSheet(): GoogleAppsScript.Spreadsheet.Sheet{
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const name = new Date();
+  let newSheet = ss.insertSheet("result " + name);
+  moveSheet(newSheet, 2);
+  return newSheet;
 }
 
 function addMenuCryptoWalletAnalyzer(){
