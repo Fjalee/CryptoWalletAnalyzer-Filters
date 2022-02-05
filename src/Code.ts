@@ -9,9 +9,11 @@ const pathFolderTokensSheets = ["CryptoWalletAnalyzer", "DexTables"];
 const filtersSheetName = "Filters";
 const placeholderNameForDeletion = "Outdated-Filters";
 
-function myFunction(){
+function initialize(){
   addMenuCryptoWalletAnalyzer();
+}
 
+function temp(){
   // const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
 
   // const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
