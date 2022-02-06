@@ -362,9 +362,6 @@ function deleteAllSheetsStartingWith(sheetStartsWith: string) {
 function addMenuCryptoWalletAnalyzer() {
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
-  menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
-  menu.addItem("Delete all results", "menuAdapterDeleteAllResults");
-  // menu.addItem("debug", "debugTemp");
 
   const subMenuFilters = ui.createMenu("Filters");
   subMenuFilters.addItem(
@@ -373,5 +370,8 @@ function addMenuCryptoWalletAnalyzer() {
   );
   menu.addSubMenu(subMenuFilters);
 
+  menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
+  menu.addItem("Delete all results", "menuAdapterDeleteAllResults");
+  // menu.addItem("debug", "debugTemp");
   menu.addToUi();
 }
