@@ -6,6 +6,13 @@ const filtersPageA1Notations = {
     checkBoxes: {
       checkBoxesStartA1Notation: "A2",
     },
+    dateFromPicker: {
+      dateFromPickerA1Notation: "E2",
+    },
+    dateToPicker: {
+      dateToPickerA1Notation: "F2",
+      dateToPickerColumn: "F",
+    },
     tokensStartRow: 2,
     tokensStartColumn: "A",
   },
@@ -44,6 +51,7 @@ function initialize() {
 }
 
 function debugTemp() {
+  
   const sheet = createNewResultSheet();
   const cell = sheet.getActiveCell();
   const rule = getValidationRuleForDatePicker();
@@ -54,22 +62,6 @@ function getValidationRuleForDatePicker(): GoogleAppsScript.Spreadsheet.DataVali
   const criteria = SpreadsheetApp.DataValidationCriteria.DATE_IS_VALID_DATE;
   const rule = SpreadsheetApp.newDataValidation().withCriteria(criteria, []).setAllowInvalid(false);
   return rule;
-}
-
-function temp() {
-  // const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
-  // const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
-  // const tokens = fitlerUniqueTokensSheetsIds(tokensSheetsIds);
-  // const filtersSheet = createOrOverwriteSheet(filtersSheetName);
-  // addTokensToFiltersPage(filtersSheet, tokens);
-  // filtersSheet.autoResizeColumns(1, 10);
-  // const tempResult = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensSheetsIds, 3, 3);
-  // tokensSheetsIds.forEach(x => {
-  //   Logger.log(x);
-  // });
-  // tempResult.forEach((value, key) => {
-  //   Logger.log(key + ": " + value);
-  // });
 }
 
 function refreshFiltersSheet() {
@@ -84,19 +76,34 @@ function refreshFiltersSheet() {
 
   addTokensToFiltersPage(filtersSheet, tokens);
   addCheckBoxesToFiltersPage(tokens.length);
+  filtersSheet.autoResizeColumns(1, 4);
 
-  filtersSheet.autoResizeColumns(1, 10);
+  addDatePickersToFiltersPage(tokens.length);
+  filtersSheet.setColumnWidths(5, 2, 85);
 }
 
 function addTokensToFiltersPage(
   filtersSheet: GoogleAppsScript.Spreadsheet.Sheet,
   tokens: filterPageToken[]
 ) {
-  filtersSheet.appendRow(["", "Token Name", "Token Hash", "Sheet Id"]);
+  filtersSheet.appendRow(["", "Token Name", "Token Hash", "Sheet Id", "Date from", "Date to"]);
 
   tokens.forEach((t) => {
     filtersSheet.appendRow(["", t.name, t.hash, t.sheetId]);
   });
+}
+
+function addDatePickersToFiltersPage(amountOfTokens: number) {
+  const rangeFrom = filtersPageA1Notations.tokens.dateFromPicker.dateFromPickerA1Notation;
+  const rangeTo =
+    filtersPageA1Notations.tokens.dateToPicker.dateToPickerColumn +
+    (filtersPageA1Notations.tokens.tokensStartRow - 1 + amountOfTokens);
+
+  const range = getFiltersSheet().getRange(rangeFrom + ":" + rangeTo);
+
+  const dateRule = getValidationRuleForDatePicker();
+  range.setDataValidation(dateRule);
+
 }
 
 function addCheckBoxesToFiltersPage(amountOfTokens: number) {
@@ -369,6 +376,18 @@ function deleteAllSheetsStartingWith(sheetStartsWith: string) {
   });
 }
 
+// function filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(
+//   sheetsIdPool: string[],
+//   minAmountBought: number,
+//   maxAmountBought: number
+// ): Map<string, number> {
+//   return null;
+// }
+
+// function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(){
+//   const result = filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(sheetsIdPool, minAmount, maxAmount);
+// }
+
 function addMenuCryptoWalletAnalyzer() {
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
@@ -377,6 +396,10 @@ function addMenuCryptoWalletAnalyzer() {
   subMenuFilters.addItem(
     "Filter 1 | Wallets active in specified amount of unique tokens",
     "menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens"
+  );
+  subMenuFilters.addItem(
+    "Filter 2 | Wallets active in specified amount of unique tokens between specified dates",
+    "menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates"
   );
   menu.addSubMenu(subMenuFilters);
 
