@@ -259,16 +259,19 @@ function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens() {
     .filter((t) => t.isChecked === CheckboxStatus.Checked)
     .map((t) => t.sheetId);
 
-  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(
-    sheetsIdPool,
-    2,
-    3
-  );
+  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(sheetsIdPool, 3, 3);
+  writeSheetWalletsInTokens(result);
+}
 
-  Logger.log(result.size);
-
+function writeSheetWalletsInTokens(walletsMap: Map<string, number>){
   const sheet = createNewResultSheet();
-  sheet.appendRow([result]);
+  sheet.appendRow(["Number of tokens bought", "Wallet hash"]);
+
+  walletsMap.forEach((wallet, amountOfTokens) => {
+    sheet.appendRow([wallet, amountOfTokens]);
+  })
+
+  sheet.autoResizeColumns(1, 10);
 }
 
 function getFilterPageTokens(): filterPageTokenRow[] {
@@ -318,7 +321,7 @@ function addMenuCryptoWalletAnalyzer() {
 
   const subMenuFilters = ui.createMenu("Filters");
   subMenuFilters.addItem(
-    "Wallets active in specified amount of unique tokens",
+    "Filter 1 | Wallets active in specified amount of unique tokens",
     "menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens"
   );
   menu.addSubMenu(subMenuFilters);
