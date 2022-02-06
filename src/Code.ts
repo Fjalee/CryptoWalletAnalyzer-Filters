@@ -18,6 +18,9 @@ const filtersSheetName = "Filters";
 const placeholderNameForDeletion = "Outdated-Filters";
 const resultSheetsPrefixString = "result ";
 
+
+const positiveNumbersRegex = /^[1-9]+[0-9]*$/;
+
 enum CheckboxStatus {
   Checked = "checked",
   Unchecked = "unchecked",
@@ -40,7 +43,8 @@ function initialize() {
   addMenuCryptoWalletAnalyzer();
 }
 
-function debugTemp() {}
+function debugTemp() {
+}
 
 function temp() {
   // const tokensSheetsFolder = getFolderByPathCreateIfDoesntExist(pathFolderTokensSheets);
@@ -255,12 +259,51 @@ function addUniqueTokenCreateWalletIfDoesntExist(
 }
 
 function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens() {
+  const input = inputMinMaxAmounts();
+  if (!input){
+    return;
+  }
+  const {minAmount, maxAmount} = input;
+
   const sheetsIdPool = getFilterPageTokens()
     .filter((t) => t.isChecked === CheckboxStatus.Checked)
     .map((t) => t.sheetId);
 
-  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(sheetsIdPool, 3, 3);
+  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(sheetsIdPool, minAmount, maxAmount);
   writeSheetWalletsInTokens(result);
+}
+
+function inputMinMaxAmounts(): {minAmount: number, maxAmount: number}{
+  const positiveNumberErrorMsg = "ERROR input: enter possitive number or 0.";
+
+  var minAmountString = inputBox("Min. tokens amount", positiveNumberErrorMsg, positiveNumbersRegex);
+  if (!minAmountString){
+    return null;
+  }
+  var maxAmountString = inputBox("Max. tokens amount", positiveNumberErrorMsg, positiveNumbersRegex);
+  if (!maxAmountString){
+    return null;
+  }
+
+  const minAmount = parseInt(minAmountString);
+  const maxAmount = parseInt(maxAmountString);
+
+  if (maxAmount < minAmount){
+    Browser.msgBox("ERROR input: min amount has to be lower or same as max amount");
+    return null;
+  }
+
+  return {minAmount, maxAmount};
+}
+
+function inputBox(prompt: string, errorMsg: string, check?: RegExp){
+  var input = Browser.inputBox(prompt);
+
+  if (!check || check.test(input)){
+    return input;
+  }
+  Browser.msgBox(errorMsg);
+  return null;
 }
 
 function writeSheetWalletsInTokens(walletsMap: Map<string, number>){
@@ -270,7 +313,7 @@ function writeSheetWalletsInTokens(walletsMap: Map<string, number>){
   walletsMap.forEach((wallet, amountOfTokens) => {
     sheet.appendRow([wallet, amountOfTokens]);
   })
-  
+
   sheet.autoResizeColumns(1, 10);
 }
 
