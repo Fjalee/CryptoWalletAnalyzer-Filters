@@ -259,16 +259,16 @@ function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens() {
     .filter((t) => t.isChecked === CheckboxStatus.Checked)
     .map((t) => t.sheetId);
 
-  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(
-    sheetsIdPool,
-    2,
-    3
-  );
+  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(sheetsIdPool, 3, 3);
+  writeSheetWalletsInTokens(result);
+}
 
-  Logger.log(result.size);
-
+function writeSheetWalletsInTokens(walletsMap: Map<string, number>){
   const sheet = createNewResultSheet();
-  sheet.appendRow([result]);
+  walletsMap.forEach((wallet, amountOfTokens) => {
+    sheet.appendRow([wallet, amountOfTokens]);
+  })
+  sheet.autoResizeColumns(1, 10);
 }
 
 function getFilterPageTokens(): filterPageTokenRow[] {
