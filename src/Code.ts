@@ -44,6 +44,16 @@ function initialize() {
 }
 
 function debugTemp() {
+  const sheet = createNewResultSheet();
+  const cell = sheet.getActiveCell();
+  const rule = getValidationRuleForDatePicker();
+  cell.setDataValidation(rule);
+}
+
+function getValidationRuleForDatePicker(): GoogleAppsScript.Spreadsheet.DataValidationBuilder{
+  const criteria = SpreadsheetApp.DataValidationCriteria.DATE_IS_VALID_DATE;
+  const rule = SpreadsheetApp.newDataValidation().withCriteria(criteria, []).setAllowInvalid(false);
+  return rule;
 }
 
 function temp() {
@@ -372,6 +382,6 @@ function addMenuCryptoWalletAnalyzer() {
 
   menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
   menu.addItem("Delete all results", "menuAdapterDeleteAllResults");
-  // menu.addItem("debug", "debugTemp");
+  menu.addItem("debug", "debugTemp");
   menu.addToUi();
 }
