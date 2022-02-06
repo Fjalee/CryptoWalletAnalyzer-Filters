@@ -342,6 +342,10 @@ function createNewResultSheet(): GoogleAppsScript.Spreadsheet.Sheet {
 }
 
 function menuAdapterDeleteAllResults() {
+  const response = Browser.msgBox("DANGER!", "Are you sure you want to delete all result sheets?", Browser.Buttons.OK_CANCEL);
+  if (response == "cancel"){
+    return;
+  }
   deleteAllSheetsStartingWith(resultSheetsPrefixString);
 }
 
@@ -359,8 +363,8 @@ function addMenuCryptoWalletAnalyzer() {
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("Crypto Wallet Analyzer");
   menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
-  menu.addItem("debug", "debugTemp");
   menu.addItem("Delete all results", "menuAdapterDeleteAllResults");
+  // menu.addItem("debug", "debugTemp");
 
   const subMenuFilters = ui.createMenu("Filters");
   subMenuFilters.addItem(
