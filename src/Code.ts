@@ -266,11 +266,11 @@ function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens() {
 function writeSheetWalletsInTokens(walletsMap: Map<string, number>){
   const sheet = createNewResultSheet();
   sheet.appendRow(["Number of tokens bought", "Wallet hash"]);
-
+  
   walletsMap.forEach((wallet, amountOfTokens) => {
     sheet.appendRow([wallet, amountOfTokens]);
   })
-
+  
   sheet.autoResizeColumns(1, 10);
 }
 
