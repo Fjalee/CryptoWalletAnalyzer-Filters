@@ -6,8 +6,8 @@ const dexTableMetaData = {
   txnHashColIndex: 0,
   txnDateColIndex: 1,
   actionColIndex: 2,
-  toHashColIndex: 3,
-  fromHashColIndex: 4,
+  fromHashColIndex: 3,
+  toHashColIndex: 4,
   lastSellColIndex: 5
 };
 const filtersPageA1Notations = {
@@ -42,7 +42,7 @@ enum CheckboxStatus {
   Unchecked = "unchecked",
 }
 
-interface dexTable {
+interface dexTableRow {
   txnHash: string;
   txnDate: Date;
   action: string;
@@ -69,11 +69,12 @@ function initialize() {
 }
 
 function debugTemp() {
-  
-  const sheet = createNewResultSheet();
-  const cell = sheet.getActiveCell();
-  const rule = getValidationRuleForDatePicker();
-  cell.setDataValidation(rule);
+  const sheetsIdPool = [
+    "17KBKwrK0aH5P82CQVUGjuOD_AP2QAs8RSOwVf3Jo6ZM",
+    "1AZMcjGTK5NGcd1L0fSe9z4vnhFotnzseE3AtwkW6X8Q",
+    "1jp6oGM7F-edX42zvs6CGpCmdhuPsfWi5fGVEmjjS1zA"
+  ];
+  getWalletTokensMap(sheetsIdPool);
 }
 
 function getValidationRuleForDatePicker(): GoogleAppsScript.Spreadsheet.DataValidationBuilder{
@@ -259,16 +260,12 @@ function getWalletTokensMap(sheetsIdPool: string[]): Map<string, string[]> {
   sheetsIdPool.forEach((id) => {
     const sheet = SpreadsheetApp.openById(id);
     const tokenHash: string = sheet.getRange(tokenHashA1Notation).getValue();
-    const newWalletsHashes: string[] = sheet
-      .getRange(fromHashesA1Notation)
-      .getValues()
-      .map((w: string[]) => w[0]);
-
-    newWalletsHashes.forEach((wallet) => {
-      if (wallet != "") {
+    const dexTableRows = getDexTable(sheet);
+    dexTableRows.forEach((row) => {
+      if (row.fromHash != "") {
         walletTokensMap = addUniqueTokenCreateWalletIfDoesntExist(
           tokenHash,
-          wallet,
+          row.fromHash,
           walletTokensMap
         );
       }
@@ -278,14 +275,12 @@ function getWalletTokensMap(sheetsIdPool: string[]): Map<string, string[]> {
   return walletTokensMap;
 }
 
-function getDexTable(sheetId: string) {
-  const sheet = SpreadsheetApp.openById(sheetId);
-  const tokenHash: string = sheet.getRange(tokenHashA1Notation).getValue();
+function getDexTable(sheet: GoogleAppsScript.Spreadsheet.Spreadsheet): dexTableRow[]{
   const dexTable2dArray: string[][] = sheet
     .getRange(dexTableMetaData.a1Notation)
     .getValues();
 
-  const dexTable: dexTable[] = [];
+  const dexTable: dexTableRow[] = [];
   dexTable2dArray.map((r: string[]) => {
     dexTable.push({
       txnHash: r[dexTableMetaData.txnHashColIndex],
@@ -296,6 +291,8 @@ function getDexTable(sheetId: string) {
       lastSell: new Date(r[dexTableMetaData.lastSellColIndex]),
     })
   });
+
+  return dexTable;
 }
 
 function addUniqueTokenCreateWalletIfDoesntExist(
