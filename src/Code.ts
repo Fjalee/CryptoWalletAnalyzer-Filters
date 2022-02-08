@@ -1,6 +1,15 @@
 const tokenHashA1Notation = "E2";
 const tokenNameA1Notation = "B2";
 const fromHashesA1Notation = "D12:D";
+const dexTableMetaData = {
+  a1Notation: "A12:F",
+  txnHashColIndex: 0,
+  txnDateColIndex: 1,
+  actionColIndex: 2,
+  toHashColIndex: 3,
+  fromHashColIndex: 4,
+  lastSellColIndex: 5
+};
 const filtersPageA1Notations = {
   tokens: {
     checkBoxes: {
@@ -31,6 +40,15 @@ const positiveNumbersRegex = /^[1-9]+[0-9]*$/;
 enum CheckboxStatus {
   Checked = "checked",
   Unchecked = "unchecked",
+}
+
+interface dexTable {
+  txnHash: string;
+  txnDate: Date;
+  action: string;
+  toHash: string;
+  fromHash: string;
+  lastSell: Date;
 }
 
 interface filterPageToken {
@@ -260,6 +278,26 @@ function getWalletTokensMap(sheetsIdPool: string[]): Map<string, string[]> {
   return walletTokensMap;
 }
 
+function getDexTable(sheetId: string) {
+  const sheet = SpreadsheetApp.openById(sheetId);
+  const tokenHash: string = sheet.getRange(tokenHashA1Notation).getValue();
+  const dexTable2dArray: string[][] = sheet
+    .getRange(dexTableMetaData.a1Notation)
+    .getValues();
+
+  const dexTable: dexTable[] = [];
+  dexTable2dArray.map((r: string[]) => {
+    dexTable.push({
+      txnHash: r[dexTableMetaData.txnHashColIndex],
+      txnDate: new Date(r[dexTableMetaData.txnDateColIndex]),
+      action: r[dexTableMetaData.actionColIndex],
+      toHash: r[dexTableMetaData.toHashColIndex],
+      fromHash: r[dexTableMetaData.fromHashColIndex],
+      lastSell: new Date(r[dexTableMetaData.lastSellColIndex]),
+    })
+  });
+}
+
 function addUniqueTokenCreateWalletIfDoesntExist(
   tokenHash: string,
   walletHash: string,
@@ -376,17 +414,17 @@ function deleteAllSheetsStartingWith(sheetStartsWith: string) {
   });
 }
 
-// function filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(
-//   sheetsIdPool: string[],
-//   minAmountBought: number,
-//   maxAmountBought: number
-// ): Map<string, number> {
-//   return null;
-// }
+function filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(
+  sheetsIdPool: string[],
+  minAmountBought: number,
+  maxAmountBought: number
+): Map<string, number> {
+  return null;
+}
 
-// function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(){
-//   const result = filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(sheetsIdPool, minAmount, maxAmount);
-// }
+function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(){
+  // const result = filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(sheetsIdPool, minAmount, maxAmount);
+}
 
 function addMenuCryptoWalletAnalyzer() {
   const ui = SpreadsheetApp.getUi();
