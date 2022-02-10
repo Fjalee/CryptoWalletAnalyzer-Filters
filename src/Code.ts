@@ -10,7 +10,7 @@ const dexTableMetaData = {
   toHashColIndex: 4,
   lastSellColIndex: 5
 };
-const filtersPageA1Notations = {
+const filtersPageMetaData = {
   tokens: {
     checkBoxes: {
       checkBoxesStartA1Notation: "A2",
@@ -24,6 +24,14 @@ const filtersPageA1Notations = {
     },
     tokensStartRow: 2,
     tokensStartColumn: "A",
+    columnIndexes: {
+      isChecked: 0,
+      name: 1,
+      hash: 2,
+      sheetId: 3,
+      dateFrom: 4,
+      dateTo: 5
+    }
   },
 };
 
@@ -62,6 +70,8 @@ interface filterPageTokenRow {
   name: string;
   hash: string;
   sheetId: string;
+  dateFrom: Date;
+  dateTo: Date;
 }
 
 function initialize() {
@@ -69,12 +79,6 @@ function initialize() {
 }
 
 function debugTemp() {
-  const sheetsIdPool = [
-    "17KBKwrK0aH5P82CQVUGjuOD_AP2QAs8RSOwVf3Jo6ZM",
-    "1AZMcjGTK5NGcd1L0fSe9z4vnhFotnzseE3AtwkW6X8Q",
-    "1jp6oGM7F-edX42zvs6CGpCmdhuPsfWi5fGVEmjjS1zA"
-  ];
-  getWalletTokensMap(sheetsIdPool);
 }
 
 function getValidationRuleForDatePicker(): GoogleAppsScript.Spreadsheet.DataValidationBuilder{
@@ -113,10 +117,10 @@ function addTokensToFiltersPage(
 }
 
 function addDatePickersToFiltersPage(amountOfTokens: number) {
-  const rangeFrom = filtersPageA1Notations.tokens.dateFromPicker.dateFromPickerA1Notation;
+  const rangeFrom = filtersPageMetaData.tokens.dateFromPicker.dateFromPickerA1Notation;
   const rangeTo =
-    filtersPageA1Notations.tokens.dateToPicker.dateToPickerColumn +
-    (filtersPageA1Notations.tokens.tokensStartRow - 1 + amountOfTokens);
+    filtersPageMetaData.tokens.dateToPicker.dateToPickerColumn +
+    (filtersPageMetaData.tokens.tokensStartRow - 1 + amountOfTokens);
 
   const range = getFiltersSheet().getRange(rangeFrom + ":" + rangeTo);
 
@@ -127,10 +131,10 @@ function addDatePickersToFiltersPage(amountOfTokens: number) {
 
 function addCheckBoxesToFiltersPage(amountOfTokens: number) {
   const rangeFrom =
-    filtersPageA1Notations.tokens.checkBoxes.checkBoxesStartA1Notation;
+    filtersPageMetaData.tokens.checkBoxes.checkBoxesStartA1Notation;
   const rangeTo =
-    filtersPageA1Notations.tokens.tokensStartColumn +
-    (filtersPageA1Notations.tokens.tokensStartRow - 1 + amountOfTokens);
+    filtersPageMetaData.tokens.tokensStartColumn +
+    (filtersPageMetaData.tokens.tokensStartRow - 1 + amountOfTokens);
 
   const range = getFiltersSheet().getRange(rangeFrom + ":" + rangeTo);
 
@@ -237,11 +241,12 @@ function getFolderByPathCreateIfDoesntExist(
 }
 
 function filterWalletsActiveInSpecifiedAmountUniqueTokens(
-  sheetsIdPool: string[],
+  tokensSettings: filterPageTokenRow[],
   minAmountBought: number,
-  maxAmountBought: number
+  maxAmountBought: number,
+  includeDateFilter: boolean
 ): Map<string, number> {
-  const walletsTokensMap = getWalletTokensMap(sheetsIdPool);
+  const walletsTokensMap = getWalletTokensMap(tokensSettings, includeDateFilter);
   let result = new Map<string, number>();
 
   walletsTokensMap.forEach((tokensHashes, walletHash) => {
@@ -254,13 +259,16 @@ function filterWalletsActiveInSpecifiedAmountUniqueTokens(
   return result;
 }
 
-function getWalletTokensMap(sheetsIdPool: string[]): Map<string, string[]> {
+function getWalletTokensMap(tokensSettings: filterPageTokenRow[], includeDateFilter: boolean): Map<string, string[]> {
   let walletTokensMap = new Map<string, string[]>();
 
-  sheetsIdPool.forEach((id) => {
-    const sheet = SpreadsheetApp.openById(id);
+  tokensSettings.forEach((setting) => {
+    const sheet = SpreadsheetApp.openById(setting.sheetId);
     const tokenHash: string = sheet.getRange(tokenHashA1Notation).getValue();
-    const dexTableRows = getDexTable(sheet);
+    let dexTableRows = getDexTable(sheet);
+    if (includeDateFilter){
+      dexTableRows = dexTableRows.filter(row => betweenDates(row.txnDate, setting.dateFrom, setting.dateTo));
+    }
     dexTableRows.forEach((row) => {
       if (row.fromHash != "") {
         walletTokensMap = addUniqueTokenCreateWalletIfDoesntExist(
@@ -273,6 +281,10 @@ function getWalletTokensMap(sheetsIdPool: string[]): Map<string, string[]> {
   });
 
   return walletTokensMap;
+}
+
+function betweenDates(date: Date, from: Date, to: Date): boolean{
+  return (date > from) || (date < to);
 }
 
 function getDexTable(sheet: GoogleAppsScript.Spreadsheet.Spreadsheet): dexTableRow[]{
@@ -317,11 +329,9 @@ function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokens() {
   }
   const {minAmount, maxAmount} = input;
 
-  const sheetsIdPool = getFilterPageTokens()
-    .filter((t) => t.isChecked === CheckboxStatus.Checked)
-    .map((t) => t.sheetId);
+  const tokensFilter = getFilterPageTokens().filter((t) => t.isChecked === CheckboxStatus.Checked);
 
-  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(sheetsIdPool, minAmount, maxAmount);
+  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensFilter, minAmount, maxAmount, false);
   writeSheetWalletsInTokens(result);
 }
 
@@ -375,10 +385,12 @@ function getFilterPageTokens(): filterPageTokenRow[] {
   const table = getFiltersSheet().getDataRange().getValues().splice(1);
   table.forEach((t) => {
     result.push({
-      isChecked: t[0],
-      name: t[1],
-      hash: t[2],
-      sheetId: t[3],
+      isChecked: t[filtersPageMetaData.tokens.columnIndexes.isChecked],
+      name: t[filtersPageMetaData.tokens.columnIndexes.name],
+      hash: t[filtersPageMetaData.tokens.columnIndexes.hash],
+      sheetId: t[filtersPageMetaData.tokens.columnIndexes.sheetId],
+      dateFrom: t[filtersPageMetaData.tokens.columnIndexes.dateFrom],
+      dateTo: t[filtersPageMetaData.tokens.columnIndexes.dateTo]
     });
   });
 
@@ -411,16 +423,17 @@ function deleteAllSheetsStartingWith(sheetStartsWith: string) {
   });
 }
 
-function filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(
-  sheetsIdPool: string[],
-  minAmountBought: number,
-  maxAmountBought: number
-): Map<string, number> {
-  return null;
-}
-
 function menuAdapterFilterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(){
-  // const result = filterWalletsActiveInSpecifiedAmountUniqueTokensBetweenSpecifiedDates(sheetsIdPool, minAmount, maxAmount);
+  const input = inputMinMaxAmounts();
+  if (!input){
+    return;
+  }
+  const {minAmount, maxAmount} = input;
+
+  const tokensFilter = getFilterPageTokens().filter((t) => t.isChecked === CheckboxStatus.Checked);
+
+  const result = filterWalletsActiveInSpecifiedAmountUniqueTokens(tokensFilter, minAmount, maxAmount, true);
+  writeSheetWalletsInTokens(result);
 }
 
 function addMenuCryptoWalletAnalyzer() {
