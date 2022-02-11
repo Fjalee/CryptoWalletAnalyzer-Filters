@@ -93,6 +93,7 @@ function refreshFiltersSheet() {
   );
 
   const tokensSheetsIds = getGoogleSheetIds(tokensSheetsFolder);
+
   const tokens = fitlerUniqueTokensSheetsIds(tokensSheetsIds);
 
   const filtersSheet = createOrOverwriteSheet(filtersSheetName);
@@ -189,24 +190,24 @@ function moveSheet(
 
 function fitlerUniqueTokensSheetsIds(allIds: string[]): filterPageToken[] {
   let uniqueTokenHashes: string[] = [];
-  let uniqueTokens: filterPageToken[] = [];
+  let allTokens: filterPageToken[] = [];
 
   allIds.forEach((id) => {
     const sheet = SpreadsheetApp.openById(id);
     const tokenHash: string = sheet.getRange(tokenHashA1Notation).getValue();
     const tokenName: string = sheet.getRange(tokenNameA1Notation).getValue();
     if (uniqueTokenHashes.includes(tokenHash)) {
-      const indexToRemove = allIds.indexOf(id);
+      const indexToRemove = uniqueTokenHashes.indexOf(tokenHash);
       if (indexToRemove > -1) {
-        allIds.splice(indexToRemove, 1);
+        uniqueTokenHashes.splice(indexToRemove, 1);
       }
     } else {
       uniqueTokenHashes.push(tokenHash);
-      uniqueTokens.push({ name: tokenName, hash: tokenHash, sheetId: id });
+      allTokens.push({ name: tokenName, hash: tokenHash, sheetId: id });
     }
   });
 
-  return uniqueTokens;
+  return allTokens.filter(t => uniqueTokenHashes.includes(t.hash));
 }
 
 function getGoogleSheetIds(folder: GoogleAppsScript.Drive.Folder): string[] {
