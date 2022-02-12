@@ -44,6 +44,7 @@ const resultSheetsPrefixString = "result ";
 
 
 const positiveNumbersRegex = /^[1-9]+[0-9]*$/;
+const dateFormat = "dd/MM/YYYY hh:mm:ss";
 
 enum CheckboxStatus {
   Checked = "checked",
@@ -78,7 +79,15 @@ function initialize() {
   addMenuCryptoWalletAnalyzer();
 }
 
-function debugTemp() {
+function debugTemp() {}
+
+function parseToUTC(date: Date){
+  return new Date(
+    date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(),
+    date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds()
+  );
+  // const formatedString = Utilities.formatDate(date, "UTC", dateFormat);
+  // return new Date(formatedString);
 }
 
 function getValidationRuleForDatePicker(): GoogleAppsScript.Spreadsheet.DataValidationBuilder{
