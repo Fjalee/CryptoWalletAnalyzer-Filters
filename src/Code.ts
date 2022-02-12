@@ -45,6 +45,8 @@ const resultSheetsPrefixString = "result ";
 
 const positiveNumbersRegex = /^[1-9]+[0-9]*$/;
 const dateFormat = "dd/MM/YYYY hh:mm:ss";
+const minDate = new Date(1, 01, 01);
+const maxDate = new Date(3000, 01, 01);
 
 enum CheckboxStatus {
   Checked = "checked",
@@ -79,9 +81,25 @@ function initialize() {
   addMenuCryptoWalletAnalyzer();
 }
 
-function debugTemp() {}
+function debugTemp() {
+}
 
 function parseToUTC(date: Date){
+  var t = new Date(
+    date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(),
+    date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds()
+  );
+
+  return new Date(
+    date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(),
+    date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds()
+  );
+  // const formatedString = Utilities.formatDate(date, "UTC", dateFormat);
+  // return new Date(formatedString);
+}
+
+function parseStringToUTCDate(dateString: string){
+  var date = new Date(dateString);
   return new Date(
     date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(),
     date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds()
@@ -294,13 +312,14 @@ function getWalletTokensMap(tokensSettings: filterPageTokenRow[], includeDateFil
 }
 
 function betweenDates(date: Date, from: Date, to: Date): boolean{
-  return (date > from) || (date < to);
+  const foo = (date.getTime() >= from.getTime()) && (date.getTime() <= to.getTime());
+  return foo;
 }
 
 function getDexTable(sheet: GoogleAppsScript.Spreadsheet.Spreadsheet): dexTableRow[]{
   const dexTable2dArray: string[][] = sheet
     .getRange(dexTableMetaData.a1Notation)
-    .getValues();
+    .getDisplayValues();
 
   const dexTable: dexTableRow[] = [];
   dexTable2dArray.map((r: string[]) => {
@@ -394,13 +413,16 @@ function getFilterPageTokens(): filterPageTokenRow[] {
 
   const table = getFiltersSheet().getDataRange().getValues().splice(1);
   table.forEach((t) => {
+    const dateFrom = t[filtersPageMetaData.tokens.columnIndexes.dateFrom];
+    const dateTo = t[filtersPageMetaData.tokens.columnIndexes.dateTo];
+
     result.push({
       isChecked: t[filtersPageMetaData.tokens.columnIndexes.isChecked],
       name: t[filtersPageMetaData.tokens.columnIndexes.name],
       hash: t[filtersPageMetaData.tokens.columnIndexes.hash],
       sheetId: t[filtersPageMetaData.tokens.columnIndexes.sheetId],
-      dateFrom: t[filtersPageMetaData.tokens.columnIndexes.dateFrom],
-      dateTo: t[filtersPageMetaData.tokens.columnIndexes.dateTo]
+      dateFrom: !(dateFrom === "") ? parseToUTC(dateFrom) : minDate,
+      dateTo: !(dateTo === "") ? parseToUTC(dateTo) : maxDate,
     });
   });
 
