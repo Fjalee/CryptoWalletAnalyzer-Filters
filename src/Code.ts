@@ -485,6 +485,6 @@ function addMenuCryptoWalletAnalyzer() {
 
   menu.addItem("Refresh Filters sheet", "refreshFiltersSheet");
   menu.addItem("Delete all results", "menuAdapterDeleteAllResults");
-  menu.addItem("debug", "debugTemp");
+  // menu.addItem("debug", "debugTemp");
   menu.addToUi();
 }
