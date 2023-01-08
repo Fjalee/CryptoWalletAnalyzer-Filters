@@ -3,7 +3,7 @@
 ### Setup
 #### Setup script
 * open the script I shared with you (check email).
-* click Run and allow permissions and then clsoe the script.
+* click Run and allow permissions and then close the script.
 * create a google sheets file in your google drive and save it.
 * in the file go to 'Extensions' -> 'Apps Script'.
 * copy paste init script (below in this README file).
